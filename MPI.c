@@ -1,5 +1,11 @@
-// gcc -c hellompi.c -o hellompi.c -i "C:\Program Files\Microsoft MPI\include"
-// gcc 
+/*
+To compile and execute with 4 process in parallel:
+
+# mpicc MPI.c -o MPI
+# mpirun -np 4 ./MPI
+
+*/
+
 
 #include <stdio.h>
 #include <string.h>
@@ -23,7 +29,7 @@ int main(int argc, char* argv[]) {
     MPI_Comm_size(MPI_COMM_WORLD, &numProc);
 
     // get rank of this process
-    MPI_Comm_rank(MPI_COMM_WORDL, &myRank);
+    MPI_Comm_rank(MPI_COMM_WORLD, &myRank);
 
     // HERE starts the part of the code to send, receive and process messages
 
@@ -35,16 +41,31 @@ int main(int argc, char* argv[]) {
 
         // send mess to dest
         MPI_Send(mess, count, MPI_CHAR, dest, tag, MPI_COMM_WORLD);
+
+        /*
+        int x;
+        printf("process %d: give me a number:", myRank);
+        scanf("%d", x);
+
+        */
     }
     else {              // root process (0)
         // receive mess from each processor in rank order
         for(source = 1; source < numProc; source++) {
-            MPI_Recv(mess, MAXSIZE, MPI_CHAR, source, tag, MPICOMM_WORLD, &status);
-            printf("%s\n", mess);
-        }
+        MPI_Recv(mess, MAXSIZE, MPI_CHAR, source, tag, MPI_COMM_WORLD, &status);
+        printf("%s\n", mess);
+    }
+
+    /*
+    do {
+        MPI_Recv(&x, 1, MPI_INT, MPI_ANY_SOURCE, type, MPI_COMM_WORLD, &status);
+        printf("process &d: firo numero: %d\n", rank, x);
+        if (x == 0 )
+    }
+    */
     }
 
     // HERE ends the part of the code to send, receive and process messages
 
-   MPI_Finalize();      // shut down MPI
+    MPI_Finalize();      // shut down MPI
 }
